@@ -1,0 +1,16 @@
+SELECT
+  username,
+  LAST(TABLE::GROUP_CONCAT("Event Name", username)) AS 'Event name Group',
+  LONG(UNIQUECOUNT("Event Name")) AS 'Unique Event Name count',
+  LONG(SUM(evcount)) AS 'Event Count'
+FROM (
+  SELECT
+    username,
+    QIDNAME(qid) AS 'Event Name',
+    SUM(eventcount) AS 'evcount'
+  FROM events WHERE username IS NOT NULL
+  GROUP BY username,"Event Name"
+  LAST 15 MINUTES
+)
+GROUP BY username
+ORDER BY "Unique Event Name count" DESC 

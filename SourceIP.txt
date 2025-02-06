@@ -1,0 +1,16 @@
+SELECT
+  sourceip,
+  LAST(TABLE::GROUP_CONCAT("Event Name", sourceip)) AS 'Event name Group',
+  LONG(UNIQUECOUNT("Event Name")) AS 'Unique Event Name count',
+  LONG(SUM(evcount)) AS 'Event Count'
+FROM (
+  SELECT
+    sourceip,
+    QIDNAME(qid) AS 'Event Name',
+    SUM(eventcount) AS 'evcount'
+  FROM events
+  GROUP BY sourceip,"Event Name"
+  LAST 15 MINUTES
+)
+GROUP BY sourceip
+ORDER BY "Unique Event Name count" DESC 
