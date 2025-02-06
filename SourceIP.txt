@@ -14,3 +14,7 @@ FROM (
 )
 GROUP BY sourceip
 ORDER BY "Unique Event Name count" DESC 
+
+
+# time
+START '2024-02-05 10:00:00' STOP '2024-02-05 11:00:00
