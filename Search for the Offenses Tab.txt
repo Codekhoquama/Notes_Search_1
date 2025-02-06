@@ -1,0 +1,17 @@
+select
+QIDNAME(qid) as 'Event Name',
+logsourcename(logSourceId) as 'Log Source',
+DATEFORMAT(startTime, 'yyyy-MM-dd hh:mm:ss') as StartTime,
+categoryname(category) as 'Low Level Category',
+GEO::LOOKUP(sourceip, 'city_name') as City,
+GEO::LOOKUP(sourceip, 'physical_country') as Country,
+"User Agent" as 'User Agent',
+"sourceIP" as 'Source IP',
+"destinationIP" as 'Destination IP',
+"userName" as 'Username'
+from events where ( ( category='3115' AND "eventDirection"='R2L' ) 
+AND "sourceIP" != '0.0.0.0' ) AND Username = '<offense_source>'
+ORDER BY StartTime DESC
+LIMIT 20
+START LONG(application::add(<offense_starttime>, -225000000)) 
+STOP LONG(application::add(<offense_endtime>, 0))
