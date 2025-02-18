@@ -1,0 +1,18 @@
+Luồng cảnh báo: Prohibited commands on Linux OS
+Rule: 	when the event detected by one or more of Linux_OS
+	the event QID is one of the following  (4750126) Command Execution - Execve Event 
+(4750257) Command Execution -  Prociti Event
+Description: Triggered to record arguments of the execve(2) system call
+-> Sẽ cảnh báo liên quan đến các đối số của command
+LogSource: Linux OS
+=> Nguyên nhân: Số lượng cảnh báo lớn là do việc quản trị thực hiện command chạy script là lên cảnh báo..
+=> Giải pháp hiện tại: SOC2 exception đối với các command được onwer xác nhận. Nếu onwer không xác nhận thì sẽ kiểm tra thêm.
+=> Đề xuất khác: 
+Xây dựng các điều kiện trong rule để tối ưu nếu cấu hình rule xét từng đối số của command (cấu hình rule phức tạp và mất thời gian bởi vì sẽ phải tạo các đối số whitelist hoặc blacklist và thêm vào đó trước khi quản trị thực hiện chạy script).
+SOC1 có thể trích xuất một số đối số để kiểm tra, đánh giá trước như ip,dns,port,path được tải hay gọi đến.
+=> Kết luận:
+Việc thực hiện chủ động đối với cảnh báo Prohibited commands on Linux OS là rất khó bởi vì các đối số có mối liên kết với nhau để tạo thành một script, việc đánh giá từng đối số đôi khi là không khách quan. Ngoại trừ các trường hợp đối số là các hành vi nguy hiểm được dự báo trước như gọi đến máy chủ C&C, thực thi file mã độc đã được cảnh báo…
+Các cảnh báo đa số là failed positive nhưng vẫn cần thiết trong quá trình xác minh vì tác động chính bởi tài khoản quản trị.
+Ưu tiên giải pháp hiện tại.
+
+
